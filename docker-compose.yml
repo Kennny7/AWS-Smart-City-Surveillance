@@ -1,0 +1,119 @@
+# docker-compose.yml
+
+# version: '3.8'
+
+networks:
+  smartcity-network:
+    driver: bridge
+
+volumes:
+  zookeeper_data:
+  kafka_data:
+
+services:
+  # =======================
+  # 1. ZOOKEEPER
+  # =======================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.2
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181"   # Dynamic allocation: only specify container port
+    healthcheck:
+      test: [ "CMD", "echo", "ruok", "|", "nc", "localhost", "2181" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper
+    networks:
+      - smartcity-network
+
+  # =======================
+  # 2. KAFKA
+  # =======================
+  kafka:
+    image: confluentinc/cp-kafka:7.3.2
+    restart: always
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - "9092"   # Dynamic allocation: only specify container port
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - smartcity-network
+    command:
+      - bash
+      - -c
+      - |
+        /etc/confluent/docker/run &
+        sleep 5
+        kafka-topics --create --bootstrap-server kafka:9092 --topic videoTopic --partitions 1 --replication-factor 1
+        wait
+
+  # =======================
+  # 3. SPARK
+  # =======================
+  spark:
+    image: bitnami/spark:3.4
+    restart: always
+    depends_on:
+      - kafka
+    environment:
+      - SPARK_MODE=master
+    # For a full cluster, you'd add worker containers, etc.
+    #environment:
+    #  - SPARK_MODE=worker
+    #  - SPARK_MASTER_URL=spark://spark:7077
+    #depends_on:
+    #  - spark
+    ports:
+      - "7077"   # Dynamic allocation: Spark master port
+      - "8080"   # Dynamic allocation: Spark master web UI
+    networks:
+      - smartcity-network
+
+  # =======================
+  # 4. YOUR APP
+  # =======================
+  app:
+    # container_name: smartcitysurveillance-app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "5000"   # Dynamic allocation: only specify container port
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - .:/app  # so changes in code reflect inside container if needed
+    environment:
+      # Provide any env vars your app might need
+      # e.g. KAFKA_BOOTSTRAP_SERVERS, etc.
+      - FLASK_ENV=development
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    command: >
+      python src/web_dashboard/app.py
+    networks:
+      - smartcity-network
