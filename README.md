@@ -82,7 +82,7 @@ smart-city-surveillance/
 
 1. **Clone this Repository**  
    ```bash
-   git clone https://github.com/Kennny7/smart-city-surveillance.git
+   git clone https://github.com/Kennny7/Azure-Smart-City-Surveillance.git
    cd smart-city-surveillance
    ```
 
