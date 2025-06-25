@@ -1,4 +1,4 @@
-# Smart City Surveillance
+# AWS Smart City Surveillance
 
 This repository implements a **real-time anomaly detection system** for camera feeds in a smart city environment. It uses **Kafka** as the message broker, **Spark Structured Streaming** for real-time inference, and a **Flask** dashboard to display anomalies.
 
@@ -33,7 +33,7 @@ The **Smart City Surveillance** project continuously monitors one or more video 
 
 ## Project Structure
 ```
-smart-city-surveillance/
+AWS-Smart-City-Surveillance/
 ├── config/
 │   ├── kafka_config.json         # Kafka-related configs
 │   └── alert_config.json         # Alert system configs (email, Slack, etc.)
@@ -82,8 +82,8 @@ smart-city-surveillance/
 
 1. **Clone this Repository**  
    ```bash
-   git clone https://github.com/Kennny7/Azure-Smart-City-Surveillance.git
-   cd smart-city-surveillance
+   git clone https://github.com/Kennny7/AWS-Smart-City-Surveillance.git
+   cd AWS-Smart-City-Surveillance
    ```
 
 2. **Install Docker & Docker Compose**  
