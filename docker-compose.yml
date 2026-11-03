@@ -1,119 +1,164 @@
-# docker-compose.yml
+services:
+  # ----------------------------------------------------------------------------
+  # Redpanda: Ultra-fast, C++ Kafka-compatible streaming engine (Zero-JVM)
+  # ----------------------------------------------------------------------------
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: chronos-message-bus
+    command:
+      - redpanda start
+      - --smp 1
+      - --memory 1G
+      - --overprovisioned
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+    ports:
+      - "19092:19092"
+      - "9644:9644" # Admin API
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+    networks:
+      - chronos-net
 
-# version: '3.8'
+  # ----------------------------------------------------------------------------
+  # Redpanda Console: Web UI for inspection of streaming frames & anomalies
+  # ----------------------------------------------------------------------------
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:latest
+    container_name: chronos-message-console
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:9092"]
+    ports:
+      - "8088:8080"
+    depends_on:
+      - redpanda
+    networks:
+      - chronos-net
+
+  # ----------------------------------------------------------------------------
+  # Qdrant Vector Engine: High-scale biometric search & 512D face embeddings
+  # ----------------------------------------------------------------------------
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: chronos-vector-db
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - chronos-net
+
+  # ----------------------------------------------------------------------------
+  # MinIO Object Storage: Distributed S3-compatible engine for 3D meshes & snapshots
+  # ----------------------------------------------------------------------------
+  minio:
+    image: minio/minio:latest
+    container_name: chronos-object-storage
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - chronos-net
+
+  # ----------------------------------------------------------------------------
+  # Ingestion Gateway Microservice
+  # ----------------------------------------------------------------------------
+  ingestion-gateway:
+    build:
+      context: ./services/ingestion-gateway
+      dockerfile: Dockerfile
+    container_name: chronos-ingestion-gateway
+    env_file: .env
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redpanda
+    networks:
+      - chronos-net
+
+  # ----------------------------------------------------------------------------
+  # Anomaly Detector Microservice
+  # ----------------------------------------------------------------------------
+  anomaly-detector:
+    build:
+      context: ./services/anomaly-detector
+      dockerfile: Dockerfile
+    container_name: chronos-anomaly-detector
+    env_file: .env
+    depends_on:
+      - redpanda
+    networks:
+      - chronos-net
+
+  # ----------------------------------------------------------------------------
+  # Biometric Reconnaissance Microservice
+  # ----------------------------------------------------------------------------
+  biometric-recon:
+    build:
+      context: ./services/biometric-recon
+      dockerfile: Dockerfile
+    container_name: chronos-biometric-recon
+    env_file: .env
+    ports:
+      - "8002:8002"
+    depends_on:
+      - redpanda
+      - qdrant
+    networks:
+      - chronos-net
+
+  # ----------------------------------------------------------------------------
+  # Agentic Threat Reasoning & Ontology Microservice
+  # ----------------------------------------------------------------------------
+  agentic-ontology:
+    build:
+      context: ./services/agentic-ontology
+      dockerfile: Dockerfile
+    container_name: chronos-agentic-ontology
+    env_file: .env
+    ports:
+      - "8003:8003"
+    depends_on:
+      - redpanda
+    networks:
+      - chronos-net
+
+  # ----------------------------------------------------------------------------
+  # Tactical Mission Control Dashboard (HUD)
+  # ----------------------------------------------------------------------------
+  mission-control-ui:
+    build:
+      context: ./services/mission-control-ui
+      dockerfile: Dockerfile
+    container_name: chronos-mission-control-ui
+    env_file: .env
+    ports:
+      - "8501:8501"
+    depends_on:
+      - ingestion-gateway
+      - anomaly-detector
+      - biometric-recon
+      - agentic-ontology
+    networks:
+      - chronos-net
 
 networks:
-  smartcity-network:
+  chronos-net:
     driver: bridge
 
 volumes:
-  zookeeper_data:
-  kafka_data:
-
-services:
-  # =======================
-  # 1. ZOOKEEPER
-  # =======================
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.2
-    restart: always
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181"   # Dynamic allocation: only specify container port
-    healthcheck:
-      test: [ "CMD", "echo", "ruok", "|", "nc", "localhost", "2181" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - zookeeper_data:/var/lib/zookeeper
-    networks:
-      - smartcity-network
-
-  # =======================
-  # 2. KAFKA
-  # =======================
-  kafka:
-    image: confluentinc/cp-kafka:7.3.2
-    restart: always
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-    ports:
-      - "9092"   # Dynamic allocation: only specify container port
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-    healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "9092" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - kafka_data:/var/lib/kafka/data
-    networks:
-      - smartcity-network
-    command:
-      - bash
-      - -c
-      - |
-        /etc/confluent/docker/run &
-        sleep 5
-        kafka-topics --create --bootstrap-server kafka:9092 --topic videoTopic --partitions 1 --replication-factor 1
-        wait
-
-  # =======================
-  # 3. SPARK
-  # =======================
-  spark:
-    image: bitnami/spark:3.4
-    restart: always
-    depends_on:
-      - kafka
-    environment:
-      - SPARK_MODE=master
-    # For a full cluster, you'd add worker containers, etc.
-    #environment:
-    #  - SPARK_MODE=worker
-    #  - SPARK_MASTER_URL=spark://spark:7077
-    #depends_on:
-    #  - spark
-    ports:
-      - "7077"   # Dynamic allocation: Spark master port
-      - "8080"   # Dynamic allocation: Spark master web UI
-    networks:
-      - smartcity-network
-
-  # =======================
-  # 4. YOUR APP
-  # =======================
-  app:
-    # container_name: smartcitysurveillance-app
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    depends_on:
-      kafka:
-        condition: service_healthy
-    ports:
-      - "5000"   # Dynamic allocation: only specify container port
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:5000" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - .:/app  # so changes in code reflect inside container if needed
-    environment:
-      # Provide any env vars your app might need
-      # e.g. KAFKA_BOOTSTRAP_SERVERS, etc.
-      - FLASK_ENV=development
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-    command: >
-      python src/web_dashboard/app.py
-    networks:
-      - smartcity-network
+  redpanda-data:
+  qdrant-data:
+  minio-data:
