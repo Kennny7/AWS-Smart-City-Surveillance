@@ -1,0 +1,24 @@
+[project]
+name = "ingestion-gateway"
+version = "0.1.0"
+description = "Chronos Ingestion Gateway - Universal RTSP, Mobile, WebRTC & Hardware Camera Stream Dispatcher"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "opencv-python-headless>=4.10.0.84",
+    "numpy>=1.26.0",
+    "confluent-kafka>=2.6.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "python-dotenv>=1.0.1",
+    "httpx>=0.27.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+ingest = "main:start"
