@@ -4,7 +4,7 @@ Cyber-tactical surveillance and 3D intelligence dashboard built for city-scale c
 
 ---
 
-## 📌 Features & Visual HUD
+## Features & Visual HUD
 
 - **Cyber-Tactical HUD**: Dark-mode target acquisition reticles, biometric bounding cards, and live telemetry overlays matching defense-grade surveillance operations.
 - **Biometric Identity Card**: Clean, non-null intelligence profiles displaying confirmed OSINT identities, security clearance, confidence scores, and professional stats.
@@ -14,7 +14,7 @@ Cyber-tactical surveillance and 3D intelligence dashboard built for city-scale c
 
 ---
 
-## 🚀 Quickstart Guide
+## Quickstart Guide
 
 ### For Newbies
 1. `cd services/mission-control-ui`

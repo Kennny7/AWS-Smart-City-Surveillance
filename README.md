@@ -4,28 +4,28 @@
 
 ---
 
-## 🌐 Overview
+## Overview
 
 **Chronos Surveillance OS** is a distributed, cyber-tactical smart city surveillance platform. It ingests feeds from enterprise CCTV networks, mobile smartphones, and laptop webcams to execute real-time threat anomaly detection, 3D facial morphometry reconstruction, OSINT identity correlation, and multi-agent reasoning using local Large Language Models (LLMs).
 
 <details>
-<summary><b>📐 Master System Architecture (Click to expand)</b></summary>
+<summary><b> Master System Architecture (Click to expand)</b></summary>
 
 ```mermaid
 graph TD
-    A[CCTV / RTSP / Drone] & B[Smartphone IP Camera] & C[Laptop / USB Cam] --> D[services/ingestion-gateway]
-    D --> E[Redpanda / Kafka Streaming Bus]
-    E --> F[services/anomaly-detector]
-    E --> G[services/biometric-recon]
-    F & G --> H[services/agentic-ontology]
-    H <--> I[Local Gemma-4 LLM Engine]
-    F & G & H --> J[services/mission-control-ui]
+ A[CCTV / RTSP / Drone] & B[Smartphone IP Camera] & C[Laptop / USB Cam] --> D[services/ingestion-gateway]
+ D --> E[Redpanda / Kafka Streaming Bus]
+ E --> F[services/anomaly-detector]
+ E --> G[services/biometric-recon]
+ F & G --> H[services/agentic-ontology]
+ H <--> I[Local Gemma-4 LLM Engine]
+ F & G & H --> J[services/mission-control-ui]
 ```
 </details>
 
 ---
 
-## 📦 Microservices Ecosystem
+## Microservices Ecosystem
 
 Every microservice in Chronos is self-contained with its own `pyproject.toml` (managed by `uv`), dedicated documentation, and architecture diagrams:
 
@@ -37,7 +37,7 @@ Every microservice in Chronos is self-contained with its own `pyproject.toml` (m
 
 ---
 
-## ⚡ Quickstart
+## Quickstart
 
 ### Prerequisites
 - [uv](https://docs.astral.sh/uv/) (`curl -LsSf https://astral.sh/uv/install.sh | sh` or `winget install astral-sh.uv`)
@@ -74,7 +74,7 @@ Open your browser at **`http://localhost:8501`** to access the tactical HUD.
 
 ---
 
-## 📚 Documentation & Technical Manuals
+## Documentation & Technical Manuals
 
 - [System Architecture Overview](docs/architecture/system_overview.md)
 - [Universal Camera Integration Guide (CCTV, Laptops, Phones)](docs/guides/camera_integration_guide.md)
@@ -87,5 +87,5 @@ Open your browser at **`http://localhost:8501`** to access the tactical HUD.
 
 ---
 
-## 📄 License
+## License
 This project is licensed under the Apache 2.0 / MIT License.

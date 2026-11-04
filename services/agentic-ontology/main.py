@@ -46,7 +46,6 @@ class ThreatNarrativeResponse(BaseModel):
 class SurveillanceKnowledgeGraph:
     def __init__(self):
         self.graph = nx.DiGraph()
-        # Seed graph with city grid infrastructure
         self.graph.add_node("CITY_SECTOR_07", type="SECTOR", name="Metropolis Sector 07")
         self.graph.add_node("CAM_NODE_01", type="CAMERA", location="Central Plaza", status="ONLINE")
         self.graph.add_edge("CAM_NODE_01", "CITY_SECTOR_07", relation="MONITORS")
@@ -88,7 +87,6 @@ async def query_local_gemma_llm(prompt: str) -> str:
     except Exception as e:
         logger.warning(f"Local LLM connection to {LLM_BASE_URL} returned error or timeout ({e}). Using deterministic tactical reasoning agent.")
 
-    # High-precision deterministic fallback reasoning
     return (
         "TACTICAL THREAT ANALYSIS: Observation indicates localized spatial disruption. "
         "Subject identified matches authorized security personnel credentials. "

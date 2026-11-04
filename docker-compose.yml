@@ -1,164 +1,164 @@
 services:
-  # ----------------------------------------------------------------------------
-  # Redpanda: Ultra-fast, C++ Kafka-compatible streaming engine (Zero-JVM)
-  # ----------------------------------------------------------------------------
-  redpanda:
-    image: docker.redpanda.com/redpandadata/redpanda:latest
-    container_name: chronos-message-bus
-    command:
-      - redpanda start
-      - --smp 1
-      - --memory 1G
-      - --overprovisioned
-      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
-      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
-    ports:
-      - "19092:19092"
-      - "9644:9644" # Admin API
-    volumes:
-      - redpanda-data:/var/lib/redpanda/data
-    networks:
-      - chronos-net
+ # ----------------------------------------------------------------------------
+ # Redpanda: Ultra-fast, C++ Kafka-compatible streaming engine (Zero-JVM)
+ # ----------------------------------------------------------------------------
+ redpanda:
+ image: docker.redpanda.com/redpandadata/redpanda:latest
+ container_name: chronos-message-bus
+ command:
+ - redpanda start
+ - --smp 1
+ - --memory 1G
+ - --overprovisioned
+ - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+ - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+ ports:
+ - "19092:19092"
+ - "9644:9644" # Admin API
+ volumes:
+ - redpanda-data:/var/lib/redpanda/data
+ networks:
+ - chronos-net
 
-  # ----------------------------------------------------------------------------
-  # Redpanda Console: Web UI for inspection of streaming frames & anomalies
-  # ----------------------------------------------------------------------------
-  redpanda-console:
-    image: docker.redpanda.com/redpandadata/console:latest
-    container_name: chronos-message-console
-    entrypoint: /bin/sh
-    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
-    environment:
-      CONFIG_FILEPATH: /tmp/config.yml
-      CONSOLE_CONFIG_FILE: |
-        kafka:
-          brokers: ["redpanda:9092"]
-    ports:
-      - "8088:8080"
-    depends_on:
-      - redpanda
-    networks:
-      - chronos-net
+ # ----------------------------------------------------------------------------
+ # Redpanda Console: Web UI for inspection of streaming frames & anomalies
+ # ----------------------------------------------------------------------------
+ redpanda-console:
+ image: docker.redpanda.com/redpandadata/console:latest
+ container_name: chronos-message-console
+ entrypoint: /bin/sh
+ command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+ environment:
+ CONFIG_FILEPATH: /tmp/config.yml
+ CONSOLE_CONFIG_FILE: |
+ kafka:
+ brokers: ["redpanda:9092"]
+ ports:
+ - "8088:8080"
+ depends_on:
+ - redpanda
+ networks:
+ - chronos-net
 
-  # ----------------------------------------------------------------------------
-  # Qdrant Vector Engine: High-scale biometric search & 512D face embeddings
-  # ----------------------------------------------------------------------------
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: chronos-vector-db
-    ports:
-      - "6333:6333"
-      - "6334:6334"
-    volumes:
-      - qdrant-data:/qdrant/storage
-    networks:
-      - chronos-net
+ # ----------------------------------------------------------------------------
+ # Qdrant Vector Engine: High-scale biometric search & 512D face embeddings
+ # ----------------------------------------------------------------------------
+ qdrant:
+ image: qdrant/qdrant:latest
+ container_name: chronos-vector-db
+ ports:
+ - "6333:6333"
+ - "6334:6334"
+ volumes:
+ - qdrant-data:/qdrant/storage
+ networks:
+ - chronos-net
 
-  # ----------------------------------------------------------------------------
-  # MinIO Object Storage: Distributed S3-compatible engine for 3D meshes & snapshots
-  # ----------------------------------------------------------------------------
-  minio:
-    image: minio/minio:latest
-    container_name: chronos-object-storage
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio-data:/data
-    networks:
-      - chronos-net
+ # ----------------------------------------------------------------------------
+ # MinIO Object Storage: Distributed S3-compatible engine for 3D meshes & snapshots
+ # ----------------------------------------------------------------------------
+ minio:
+ image: minio/minio:latest
+ container_name: chronos-object-storage
+ command: server /data --console-address ":9001"
+ environment:
+ MINIO_ROOT_USER: minioadmin
+ MINIO_ROOT_PASSWORD: minioadmin
+ ports:
+ - "9000:9000"
+ - "9001:9001"
+ volumes:
+ - minio-data:/data
+ networks:
+ - chronos-net
 
-  # ----------------------------------------------------------------------------
-  # Ingestion Gateway Microservice
-  # ----------------------------------------------------------------------------
-  ingestion-gateway:
-    build:
-      context: ./services/ingestion-gateway
-      dockerfile: Dockerfile
-    container_name: chronos-ingestion-gateway
-    env_file: .env
-    ports:
-      - "8001:8001"
-    depends_on:
-      - redpanda
-    networks:
-      - chronos-net
+ # ----------------------------------------------------------------------------
+ # Ingestion Gateway Microservice
+ # ----------------------------------------------------------------------------
+ ingestion-gateway:
+ build:
+ context: ./services/ingestion-gateway
+ dockerfile: Dockerfile
+ container_name: chronos-ingestion-gateway
+ env_file: .env
+ ports:
+ - "8001:8001"
+ depends_on:
+ - redpanda
+ networks:
+ - chronos-net
 
-  # ----------------------------------------------------------------------------
-  # Anomaly Detector Microservice
-  # ----------------------------------------------------------------------------
-  anomaly-detector:
-    build:
-      context: ./services/anomaly-detector
-      dockerfile: Dockerfile
-    container_name: chronos-anomaly-detector
-    env_file: .env
-    depends_on:
-      - redpanda
-    networks:
-      - chronos-net
+ # ----------------------------------------------------------------------------
+ # Anomaly Detector Microservice
+ # ----------------------------------------------------------------------------
+ anomaly-detector:
+ build:
+ context: ./services/anomaly-detector
+ dockerfile: Dockerfile
+ container_name: chronos-anomaly-detector
+ env_file: .env
+ depends_on:
+ - redpanda
+ networks:
+ - chronos-net
 
-  # ----------------------------------------------------------------------------
-  # Biometric Reconnaissance Microservice
-  # ----------------------------------------------------------------------------
-  biometric-recon:
-    build:
-      context: ./services/biometric-recon
-      dockerfile: Dockerfile
-    container_name: chronos-biometric-recon
-    env_file: .env
-    ports:
-      - "8002:8002"
-    depends_on:
-      - redpanda
-      - qdrant
-    networks:
-      - chronos-net
+ # ----------------------------------------------------------------------------
+ # Biometric Reconnaissance Microservice
+ # ----------------------------------------------------------------------------
+ biometric-recon:
+ build:
+ context: ./services/biometric-recon
+ dockerfile: Dockerfile
+ container_name: chronos-biometric-recon
+ env_file: .env
+ ports:
+ - "8002:8002"
+ depends_on:
+ - redpanda
+ - qdrant
+ networks:
+ - chronos-net
 
-  # ----------------------------------------------------------------------------
-  # Agentic Threat Reasoning & Ontology Microservice
-  # ----------------------------------------------------------------------------
-  agentic-ontology:
-    build:
-      context: ./services/agentic-ontology
-      dockerfile: Dockerfile
-    container_name: chronos-agentic-ontology
-    env_file: .env
-    ports:
-      - "8003:8003"
-    depends_on:
-      - redpanda
-    networks:
-      - chronos-net
+ # ----------------------------------------------------------------------------
+ # Agentic Threat Reasoning & Ontology Microservice
+ # ----------------------------------------------------------------------------
+ agentic-ontology:
+ build:
+ context: ./services/agentic-ontology
+ dockerfile: Dockerfile
+ container_name: chronos-agentic-ontology
+ env_file: .env
+ ports:
+ - "8003:8003"
+ depends_on:
+ - redpanda
+ networks:
+ - chronos-net
 
-  # ----------------------------------------------------------------------------
-  # Tactical Mission Control Dashboard (HUD)
-  # ----------------------------------------------------------------------------
-  mission-control-ui:
-    build:
-      context: ./services/mission-control-ui
-      dockerfile: Dockerfile
-    container_name: chronos-mission-control-ui
-    env_file: .env
-    ports:
-      - "8501:8501"
-    depends_on:
-      - ingestion-gateway
-      - anomaly-detector
-      - biometric-recon
-      - agentic-ontology
-    networks:
-      - chronos-net
+ # ----------------------------------------------------------------------------
+ # Tactical Mission Control Dashboard (HUD)
+ # ----------------------------------------------------------------------------
+ mission-control-ui:
+ build:
+ context: ./services/mission-control-ui
+ dockerfile: Dockerfile
+ container_name: chronos-mission-control-ui
+ env_file: .env
+ ports:
+ - "8501:8501"
+ depends_on:
+ - ingestion-gateway
+ - anomaly-detector
+ - biometric-recon
+ - agentic-ontology
+ networks:
+ - chronos-net
 
 networks:
-  chronos-net:
-    driver: bridge
+ chronos-net:
+ driver: bridge
 
 volumes:
-  redpanda-data:
-  qdrant-data:
-  minio-data:
+ redpanda-data:
+ qdrant-data:
+ minio-data:

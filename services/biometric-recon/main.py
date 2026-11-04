@@ -30,7 +30,6 @@ app = FastAPI(title="Chronos Biometric Reconnaissance", version="1.0.0")
 PROFILES_DIR = os.getenv("MESH_OUTPUT_DIR", "./data/3d_profiles")
 os.makedirs(PROFILES_DIR, exist_ok=True)
 
-# Pre-seeded verified database of identities with complete, non-null intelligence profiles
 ENROLLED_IDENTITIES = {
     "SUBJECT_KHR_001": {
         "person_id": "SUBJECT_KHR_001",
@@ -65,7 +64,6 @@ ENROLLED_IDENTITIES = {
     }
 }
 
-# Queue for Human-In-The-Loop review
 HITL_VERIFICATION_QUEUE: List[Dict[str, Any]] = []
 
 class ReconRequest(BaseModel):
@@ -75,7 +73,7 @@ class ReconRequest(BaseModel):
 class VerificationDecision(BaseModel):
     subject_id: str
     reviewer_name: str
-    action: str # "APPROVE_IDENTITY", "REJECT_IDENTITY", "FLAG_THREAT"
+    action: str
     notes: Optional[str] = "Manual review completed."
 
 class Biometric3DEngine:
@@ -96,7 +94,6 @@ class Biometric3DEngine:
             logger.warning(f"MediaPipe dynamic import warning: {e}. Fallback morphometry active.")
 
     def export_3d_obj(self, landmarks_3d: List[List[float]], output_path: str):
-        """Export 3D facial point cloud as wavefront .OBJ file."""
         try:
             with open(output_path, "w") as f:
                 f.write("# Chronos Surveillance OS - 3D Facial Morphometry\n")
@@ -122,14 +119,12 @@ class Biometric3DEngine:
                     min_y, max_y = max(0, int(min(ys))), min(h, int(max(ys)))
 
                     for lm in face_landmarks.landmark:
-                        # Normalize to 3D facial coordinate frame
                         pts_3d.append([round((lm.x - 0.5) * 10.0, 4), round((0.5 - lm.y) * 10.0, 4), round(lm.z * 10.0, 4)])
 
                     subj_id = f"SUBJECT_ACQ_{int(time.time())}_{idx}"
                     mesh_file = os.path.join(PROFILES_DIR, f"{subj_id}.obj")
                     self.export_3d_obj(pts_3d, mesh_file)
 
-                    # Match with database or generate comprehensive profile
                     profile = ENROLLED_IDENTITIES.get("SUBJECT_KHR_001") if idx == 0 else {
                         "person_id": subj_id,
                         "full_name": f"Identified Citizen #{subj_id[-4:]}",
@@ -146,7 +141,6 @@ class Biometric3DEngine:
                         "mesh_path": mesh_file
                     }
 
-                    # Add to HITL queue if unverified
                     if not profile.get("human_verified"):
                         HITL_VERIFICATION_QUEUE.append({
                             "subject_id": subj_id,
@@ -164,12 +158,10 @@ class Biometric3DEngine:
                         "profile": profile
                     })
 
-        # Fallback if no face detected or mesh not loaded: generate synthetic test target
         if not detected_subjects:
             subj_id = "SUBJECT_KHR_001"
             mesh_file = os.path.join(PROFILES_DIR, f"{subj_id}.obj")
             if not os.path.exists(mesh_file):
-                # Write standard 3D face mesh archetype
                 with open(mesh_file, "w") as f:
                     f.write("# Synthetic Archetype 3D Mesh\n")
                     for angle in np.linspace(0, 2*np.pi, 60):
@@ -218,7 +210,6 @@ def get_pending_verifications():
 @app.post("/api/v1/hitl/verify")
 def submit_verification(decision: VerificationDecision):
     global HITL_VERIFICATION_QUEUE
-    # Process review
     HITL_VERIFICATION_QUEUE = [item for item in HITL_VERIFICATION_QUEUE if item["subject_id"] != decision.subject_id]
     logger.info(f"HITL Decision logged by [{decision.reviewer_name}] for [{decision.subject_id}]: {decision.action}")
     return {"status": "SUCCESS", "decision": decision}

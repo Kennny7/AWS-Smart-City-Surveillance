@@ -77,7 +77,6 @@ class CameraStreamManager:
                 t_start = time.time()
                 ret, frame = self.cap.read()
                 if not ret:
-                    # Loop video if test file, or reconnect
                     if isinstance(self.source, str) and os.path.exists(self.source):
                         self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                         continue
@@ -85,7 +84,6 @@ class CameraStreamManager:
                     continue
 
                 self.frame_count += 1
-                # Resize for optimal real-time AI processing (720p or 640x360)
                 frame = cv2.resize(frame, (640, 360))
                 _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
                 frame_bytes = buffer.tobytes()
@@ -112,15 +110,12 @@ class CameraStreamManager:
         logger.info(f"Running synthetic surveillance simulation for {self.camera_id}")
         
         while self.running:
-            # Generate tactical city-surveillance frame
             img = np.zeros((360, 640, 3), dtype=np.uint8)
-            # Add grid pattern
             for x in range(0, 640, 40):
                 cv2.line(img, (x, 0), (x, 360), (20, 28, 20), 1)
             for y in range(0, 360, 40):
                 cv2.line(img, (0, y), (640, y), (20, 28, 20), 1)
                 
-            # Draw synthetic target & reticle
             t_now = time.strftime("%Y-%m-%d %H:%M:%S")
             cv2.putText(img, f"CHRONOS CITY GRID FEED - {self.camera_id}", (20, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 120), 2)
@@ -129,7 +124,6 @@ class CameraStreamManager:
             cv2.putText(img, "[SYSTEM ACTIVE: RECON SCANNER ENGAGED]", (20, 340),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 200, 255), 1)
             
-            # Animate wandering scanning box
             x_box = int(250 + 100 * np.sin(time.time()))
             y_box = int(120 + 30 * np.cos(time.time()))
             cv2.rectangle(img, (x_box, y_box), (x_box + 120, y_box + 140), (0, 255, 0), 2)
@@ -152,7 +146,6 @@ class CameraStreamManager:
 def startup_event():
     logger.info("Initializing Chronos Ingestion Gateway...")
     primary_src = os.getenv("PRIMARY_CAMERA_SOURCE", "0")
-    # Auto-register primary camera
     reg = CameraRegistration(
         camera_id="CAM_NODE_01",
         source_url=primary_src,

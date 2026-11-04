@@ -90,7 +90,7 @@ class SpatialTemporalAnomalyEngine:
             "anomaly_score": round(float(anomaly_score), 3),
             "threat_category": threat_category,
             "description": description,
-            "bounding_boxes": boxes[:5] # Top 5 bounding regions
+            "bounding_boxes": boxes[:5]
         }
 
 ENGINE = SpatialTemporalAnomalyEngine()

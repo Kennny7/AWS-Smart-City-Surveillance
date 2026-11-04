@@ -4,24 +4,24 @@
 
 ---
 
-## 📌 Architecture & 3D Profiling Workflow
+## Architecture & 3D Profiling Workflow
 
 ```mermaid
 graph TD
-    A[Video Stream Frame] --> B[MediaPipe 468-point 3D Face Mesh]
-    B --> C[3D Point Cloud / Mesh Exporter .OBJ]
-    C --> D[MinIO Object Storage / Local Profiles]
-    B --> E[512D Vector Embedding Extraction]
-    E --> F[Vector DB: Qdrant / ChromaDB]
-    F --> G[OSINT & Civil Identity Registry Lookup]
-    G --> H{Confidence > 0.95?}
-    H -->|Yes| I[Verified Identity Stream]
-    H -->|No| J[Human-In-The-Loop Review Queue]
+ A[Video Stream Frame] --> B[MediaPipe 468-point 3D Face Mesh]
+ B --> C[3D Point Cloud / Mesh Exporter .OBJ]
+ C --> D[MinIO Object Storage / Local Profiles]
+ B --> E[512D Vector Embedding Extraction]
+ E --> F[Vector DB: Qdrant / ChromaDB]
+ F --> G[OSINT & Civil Identity Registry Lookup]
+ G --> H{Confidence > 0.95?}
+ H -->|Yes| I[Verified Identity Stream]
+ H -->|No| J[Human-In-The-Loop Review Queue]
 ```
 
 ---
 
-## 🚀 Quickstart Guide
+## Quickstart Guide
 
 ### For Newbies
 1. `cd services/biometric-recon`

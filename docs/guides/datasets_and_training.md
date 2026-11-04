@@ -4,7 +4,7 @@ This guide explains how to acquire public surveillance datasets, ingest custom v
 
 ---
 
-## 🗄️ 1. Recommended Open-Source Datasets
+## 1. Recommended Open-Source Datasets
 
 You can download and extract these datasets directly to run training or offline evaluations:
 
@@ -18,14 +18,14 @@ You can download and extract these datasets directly to run training or offline 
 
 ---
 
-## 👤 2. Creating & Verifying 3D Face Profiles
+## 2. Creating & Verifying 3D Face Profiles
 
 1. **Capture Facial Frames**:
-   Place face images into `data/sample_faces/` (e.g. `subject_01.jpg`).
+ Place face images into `data/sample_faces/` (e.g. `subject_01.jpg`).
 2. **Execute 3D Morphometry Extraction**:
-   The `biometric-recon` microservice automatically computes 468 Cartesian landmarks $(X, Y, Z)$ and outputs standard Wavefront `.OBJ` mesh files to:
-   `data/3d_profiles/<SUBJECT_ID>.obj`
+ The `biometric-recon` microservice automatically computes 468 Cartesian landmarks $(X, Y, Z)$ and outputs standard Wavefront `.OBJ` mesh files to:
+ `data/3d_profiles/<SUBJECT_ID>.obj`
 3. **Inspect in 3D**:
-   The generated `.OBJ` files can be visualized directly inside the **Mission Control HUD** or opened in any 3D tool (Blender, MeshLab, Three.js).
+ The generated `.OBJ` files can be visualized directly inside the **Mission Control HUD** or opened in any 3D tool (Blender, MeshLab, Three.js).
 4. **Human-in-the-Loop Verification**:
-   Unverified profiles are queued in the HITL terminal for operator sign-off before being granted verified clearance.
+ Unverified profiles are queued in the HITL terminal for operator sign-off before being granted verified clearance.

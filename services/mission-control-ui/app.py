@@ -22,7 +22,6 @@ load_dotenv()
 
 st.set_page_config(
     page_title="CHRONOS // Tactical Surveillance OS",
-    page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -79,7 +78,7 @@ ONTOLOGY_URL = os.getenv("ONTOLOGY_URL", "http://localhost:8003")
 # Top Status Bar
 col_h1, col_h2, col_h3 = st.columns([2, 5, 3])
 with col_h1:
-    st.markdown("<span class='rec-indicator'>● REC</span> &nbsp; <b>CHRONOS-OS v2.4</b>", unsafe_allow_html=True)
+    st.markdown("<span class='rec-indicator'>[REC]</span> &nbsp; <b>CHRONOS-OS v2.4</b>", unsafe_allow_html=True)
 with col_h2:
     st.markdown("<div style='text-align: center; color: #708599;'>METROPOLIS SECTOR-07 // REAL-TIME ANOMALY & BIOMETRIC RADAR</div>", unsafe_allow_html=True)
 with col_h3:
@@ -88,26 +87,24 @@ with col_h3:
 st.divider()
 
 # Sidebar Configuration
-st.sidebar.markdown("### 🎛️ SENSOR & FEED GATEWAY")
+st.sidebar.markdown("### SENSOR & FEED GATEWAY")
 selected_camera = st.sidebar.selectbox("Active Surveillance Node", ["CAM_NODE_01 (Central Plaza)", "PHONE_01 (Mobile Patrol)", "LAPTOP_01 (Field Operative)"])
 feed_type = st.sidebar.radio("Input Source Mode", ["Live Ingestion Feed", "Synthetic Tactical Simulator", "Sample Verification Video"])
 
 st.sidebar.divider()
-st.sidebar.markdown("### 🛡️ AGENTIC LOCAL REASONING")
+st.sidebar.markdown("### AGENTIC LOCAL REASONING")
 st.sidebar.info(f"Local LLM Base: `{os.getenv('LLM_BASE_URL', 'http://10.210.8.63:8080/v1')}`\nModel: `{os.getenv('LLM_MODEL', 'gemma-4')}`")
 
 # Main Multi-Column Reconnaissance Layout
 col_left, col_center, col_right = st.columns([3, 5, 3])
 
-# --- LEFT COLUMN: BIOMETRIC RECONNAISSANCE CARD (Matching advertisement photo) ---
+# LEFT COLUMN: BIOMETRIC RECONNAISSANCE CARD
 with col_left:
     st.markdown("<div class='hud-card'>", unsafe_allow_html=True)
-    st.markdown("<div class='hud-title'>🎯 SUBJECT BIOMETRIC CARD</div>", unsafe_allow_html=True)
+    st.markdown("<div class='hud-title'>TARGET BIOMETRIC CARD</div>", unsafe_allow_html=True)
     
-    # Subject Avatar & Target Profile
     col_av, col_av_meta = st.columns([1, 1.3])
     with col_av:
-        # Check if local sample image or generate synthetic target avatar
         avatar_img = np.zeros((160, 140, 3), dtype=np.uint8)
         avatar_img[:] = (35, 42, 48)
         cv2.circle(avatar_img, (70, 55), 32, (180, 190, 200), -1)
@@ -131,9 +128,9 @@ with col_left:
     """)
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Key Statistics Box (Matching ₹70LPA / 150% style in reference ad)
+    # Key Statistics Box
     st.markdown("<div class='hud-card'>", unsafe_allow_html=True)
-    st.markdown("<div class='hud-title'>📊 TACTICAL TARGET STATS</div>", unsafe_allow_html=True)
+    st.markdown("<div class='hud-title'>TACTICAL TARGET STATS</div>", unsafe_allow_html=True)
     col_s1, col_s2 = st.columns(2)
     with col_s1:
         st.markdown("<div style='font-size:0.75rem; color:#88a0b0;'>IMPACT / VALUE</div>", unsafe_allow_html=True)
@@ -144,33 +141,28 @@ with col_left:
     st.markdown("<div style='font-size:0.72rem; color:#708599; margin-top:8px;'>SKILLS: DSA | SYSTEM DESIGN | RAG | AI AGENTS</div>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- CENTER COLUMN: MAIN TACTICAL VIDEO HUD WITH TARGET RETICLES ---
+# CENTER COLUMN: MAIN TACTICAL VIDEO HUD WITH TARGET RETICLES
 with col_center:
     st.markdown("<div class='hud-card'>", unsafe_allow_html=True)
-    st.markdown("<div class='hud-title'>🎥 LIVE PRIMARY SURVEILLANCE FEED // SECTOR ALPHA</div>", unsafe_allow_html=True)
+    st.markdown("<div class='hud-title'>LIVE PRIMARY SURVEILLANCE FEED // SECTOR ALPHA</div>", unsafe_allow_html=True)
     
-    # Generate live tactical surveillance frame
     feed_frame = np.zeros((360, 640, 3), dtype=np.uint8)
     feed_frame[:] = (18, 22, 26)
     
-    # Draw Tactical Grid & Coordinate Lines
     for x in range(0, 640, 50):
         cv2.line(feed_frame, (x, 0), (x, 360), (28, 35, 40), 1)
     for y in range(0, 360, 50):
         cv2.line(feed_frame, (0, y), (640, y), (28, 35, 40), 1)
         
-    # Overlay Target Tracking Reticle (Matching Reference Image)
     t_reticle_x, t_reticle_y = 260, 110
     cv2.rectangle(feed_frame, (t_reticle_x, t_reticle_y), (t_reticle_x + 130, t_reticle_y + 150), (0, 255, 128), 2)
     cv2.line(feed_frame, (t_reticle_x, t_reticle_y + 75), (t_reticle_x + 130, t_reticle_y + 75), (0, 255, 128), 1)
     
-    # Reticle Corner Accents
     cv2.line(feed_frame, (t_reticle_x - 10, t_reticle_y), (t_reticle_x, t_reticle_y), (0, 255, 128), 2)
     cv2.line(feed_frame, (t_reticle_x, t_reticle_y - 10), (t_reticle_x, t_reticle_y), (0, 255, 128), 2)
     cv2.line(feed_frame, (t_reticle_x + 140, t_reticle_y), (t_reticle_x + 130, t_reticle_y), (0, 255, 128), 2)
     cv2.line(feed_frame, (t_reticle_x + 130, t_reticle_y - 10), (t_reticle_x + 130, t_reticle_y), (0, 255, 128), 2)
     
-    # Tactical HUD Info Overlays
     cv2.putText(feed_frame, "TARGET ACQUIRED: KHUSHAL", (t_reticle_x - 15, t_reticle_y - 12),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 128), 1)
     cv2.putText(feed_frame, "AI-FIRST BACKEND LEAD", (t_reticle_x - 15, t_reticle_y + 168),
@@ -182,27 +174,25 @@ with col_center:
     
     col_ctl1, col_ctl2, col_ctl3 = st.columns(3)
     with col_ctl1:
-        if st.button("🔄 RE-SCAN FRAME"):
+        if st.button("RE-SCAN FRAME"):
             st.rerun()
     with col_ctl2:
-        if st.button("⚡ FORCE 3D RECON"):
+        if st.button("FORCE 3D RECON"):
             st.success("3D Facial Mesh Generation Triggered.")
     with col_ctl3:
-        if st.button("🚨 BROADCAST ALERT"):
+        if st.button("BROADCAST ALERT"):
             st.warning("Dispatch notification sent to Operations Center.")
             
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- RIGHT COLUMN: 3D FACIAL MESH & HITL QUEUE ---
+# RIGHT COLUMN: 3D FACIAL MESH & HITL QUEUE
 with col_right:
     st.markdown("<div class='hud-card'>", unsafe_allow_html=True)
-    st.markdown("<div class='hud-title'>🌐 3D FACIAL MORPHOMETRY (.OBJ)</div>", unsafe_allow_html=True)
+    st.markdown("<div class='hud-title'>3D FACIAL MORPHOMETRY (.OBJ)</div>", unsafe_allow_html=True)
     
-    # Interactive 3D Facial Point-Cloud Visualizer
     mesh_render = np.zeros((180, 280, 3), dtype=np.uint8)
     mesh_render[:] = (12, 16, 20)
     
-    # Draw 3D wireframe mesh simulation
     center_x, center_y = 140, 90
     for r in range(15, 75, 12):
         cv2.circle(mesh_render, (center_x, center_y), r, (0, 180, 100), 1)
@@ -216,9 +206,9 @@ with col_right:
     st.markdown("<div style='font-size:0.75rem; color:#88a0b0;'>OBJ EXPORT: <code>data/3d_profiles/SUBJECT_KHR_001.obj</code></div>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Human-In-The-Loop (HITL) Verification Panel
+    # Human-In-The-Loop Panel
     st.markdown("<div class='hud-card'>", unsafe_allow_html=True)
-    st.markdown("<div class='hud-title'>👤 HUMAN-IN-THE-LOOP (HITL)</div>", unsafe_allow_html=True)
+    st.markdown("<div class='hud-title'>HUMAN-IN-THE-LOOP (HITL)</div>", unsafe_allow_html=True)
     st.markdown("<div style='font-size:0.75rem;'>PENDING VERIFICATION: <b>1 Identity</b></div>", unsafe_allow_html=True)
     
     hitl_decision = st.selectbox("Operator Clearance Decision", ["APPROVE_IDENTITY", "FLAG_AS_ANOMALY", "REQUEST_HIGH_RES_SCAN"])
@@ -229,7 +219,7 @@ with col_right:
 
 # Bottom Agentic Reasoning Narrative Terminal
 st.markdown("<div class='hud-card'>", unsafe_allow_html=True)
-st.markdown("<div class='hud-title'>🧠 AGENTIC THREAT ONTOLOGY // GEMMA-4 LIVE REASONING STREAM</div>", unsafe_allow_html=True)
+st.markdown("<div class='hud-title'>AGENTIC THREAT ONTOLOGY // GEMMA-4 LIVE REASONING STREAM</div>", unsafe_allow_html=True)
 st.markdown("""
 <div style='background:#05070a; border:1px solid #14241d; padding:12px; font-size:0.85rem; color:#00ff80;'>
 <b>[CHRONOS_TACTICAL_AGENT]</b> Querying Graph: <i>(CAM_NODE_01) -[OBSERVES]-> (SUBJECT_KHR_001) -[LOCATED_IN]-> (Sector 07)</i><br/>
