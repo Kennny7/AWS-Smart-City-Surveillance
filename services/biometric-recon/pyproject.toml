@@ -1,0 +1,26 @@
+[project]
+name = "biometric-recon"
+version = "0.1.0"
+description = "Chronos Biometric Reconnaissance - 3D Facial Morphometry, Vector Search & Identity Intelligence"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mediapipe>=0.10.14",
+    "opencv-python-headless>=4.10.0.84",
+    "numpy>=1.26.0",
+    "qdrant-client>=1.11.0",
+    "chromadb>=0.5.5",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.9.0",
+    "python-dotenv>=1.0.1",
+    "httpx>=0.27.0",
+    "scipy>=1.13.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+recon = "main:start"
