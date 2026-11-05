@@ -1,6 +1,6 @@
 # Chronos Surveillance OS
 ### Next-Gen Autonomous Smart City Intelligence & Threat Reconnaissance Platform
-*100% Pure Open-Source • Zero-AWS / Zero-Vendor-Lockin • Distributed Microservices Architecture*
+*100% Pure Open-Source • Zero-Cloud / Zero-Vendor-Lockin • Distributed Microservices Architecture*
 
 ---
 
