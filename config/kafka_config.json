@@ -1,5 +1,0 @@
-{
-  "bootstrap_servers": "kafka:9092",
-  "topic": "videoTopic"
-}
-
